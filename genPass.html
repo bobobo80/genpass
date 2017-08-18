@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html> 
+	<head> 
+		<title>genPass</title> 
+		
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	
+		<link rel="stylesheet" href="./css/jquery.mobile-1.0.min.css" />
+		<script type="text/javascript" src="./js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="./js/jquery.mobile-1.0.min.js"></script>
+		<script type="text/javascript" src="./js/md5.js"></script>
+		<script type="text/javascript" src="./js/sha256.js"></script>
+	
+		<script>
+		$("#thePage").live('pageinit', function(){
+			$( "#genButton" ).bind("tap click",function( e ){
+			
+				websiteString = $("#websiteText").val();
+				customString = $("#customText").val();
+				shaString = hex_sha256(websiteString);
+				shaString = hex_sha256(shaString+customString);
+				md5String = hex_md5(shaString);
+				digit = parseInt($("#digitSlider").val());
+				$("p#pwd").html(md5String.substring(0,digit));
+				
+				document.getElementById('customText').type = 'password';
+			});
+			
+			$("#customText").bind("focusin", function(e){
+				document.getElementById('customText').type = 'text';
+			});
+			$("#customText").bind("focusout", function(e){
+				document.getElementById('customText').type = 'password';
+			});
+		});	
+		</script>
+	
+	</head> 
+
+<body> 
+	<div data-role="page" data-theme="b" id="thePage">
+		
+		<div data-role="header" data-theme="b">
+			<h1>genPass</h1>
+		</div>
+		
+		<div data-role="content">
+				<label for="websiteText">Website:</label>
+				<input type="text" name="websiteText" id="websiteText" value="" />
+				
+				<label for="customText">Custom String:</label>
+				<input type="password" name="customText" id="customText" value="" />
+				
+				<div data-role="fieldcontain">
+					<label for="digitSlider">digit:</label>
+					<input type="range" id="digitSlider" value="16" min="8" max="32" step="1" />
+				</div>
+				
+				<a href="#" data-role="button" id="genButton">generate password</a>		
+				
+				<p>Password:</p>
+				<p id="pwd" align="center">.</p>
+		</div>
+		
+		<div data-role="footer" class="footer-docs" data-theme="b"></div>
+		
+	</div>
+</body>
+</html>
