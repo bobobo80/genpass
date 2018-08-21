@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html> 
 	<head> 
 		<title>genPass</title> 
@@ -6,65 +6,101 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1"> 
 	
-		<link rel="stylesheet" href="./css/jquery.mobile-1.0.min.css" />
-		<script type="text/javascript" src="./js/jquery-1.7.1.min.js"></script>
-		<script type="text/javascript" src="./js/jquery.mobile-1.0.min.js"></script>
-		<script type="text/javascript" src="./js/md5.js"></script>
-		<script type="text/javascript" src="./js/sha256.js"></script>
+		<link rel="stylesheet" href="./css/weui.min.css"/>
+		<script type="text/javascript" src="./js/zepto.min.js"></script>
+		<script type="text/javascript" src="./js/md5.min.js"></script>
+		<script type="text/javascript" src="./js/sha256.min.js"></script>
 	
 		<script>
-		$("#thePage").live('pageinit', function(){
-			$( "#genButton" ).bind("tap click",function( e ){
+		$(function(){
+			var $sliderTrack = $('#sliderTrack'),
+				$sliderHandler = $('#sliderHandler'),
+				$sliderValue = $('#sliderValue');
+
+			var totalLen = $('#sliderInner').width(),
+				startLeft = 0,
+				startX = 0;
+
+			$sliderHandler
+				.on('touchstart', function (e) {
+					startLeft = parseInt($sliderHandler.css('left')) * totalLen / 100;
+					startX = e.changedTouches[0].clientX;
+				})
+				.on('touchmove', function(e){
+					var dist = startLeft + e.changedTouches[0].clientX - startX,
+						percent;
+					dist = dist < 0 ? 0 : dist > totalLen ? totalLen : dist;
+					percent =  parseInt(dist / totalLen * 100);
+					$sliderTrack.css('width', percent + '%');
+					$sliderHandler.css('left', percent + '%');
+					$sliderValue.text(parseInt(8+percent*24/100));
+
+					e.preventDefault();
+				})
+			;
+			$( "#genButton" ).on("tap click",function( e ){
 			
 				websiteString = $("#websiteText").val();
 				customString = $("#customText").val();
-				shaString = hex_sha256(websiteString);
-				shaString = hex_sha256(shaString+customString);
-				md5String = hex_md5(shaString);
-				digit = parseInt($("#digitSlider").val());
-				$("p#pwd").html(md5String.substring(0,digit));
+				shaString = sha256(websiteString);
+				shaString = sha256(shaString+customString);
+				md5String = md5(shaString);
+				digit = parseInt($("#sliderValue").text());
+				$("#pwd").html(md5String.substring(0,digit));
 				
 				document.getElementById('customText').type = 'password';
 			});
 			
-			$("#customText").bind("focusin", function(e){
+			$("#customText").on("focusin", function(e){
 				document.getElementById('customText').type = 'text';
 			});
-			$("#customText").bind("focusout", function(e){
+			$("#customText").on("focusout", function(e){
 				document.getElementById('customText').type = 'password';
 			});
 		});	
 		</script>
-	
-	</head> 
+</head> 
 
 <body> 
-	<div data-role="page" data-theme="b" id="thePage">
-		
-		<div data-role="header" data-theme="b">
-			<h1>genPass</h1>
-		</div>
-		
-		<div data-role="content">
-				<label for="websiteText">Website:</label>
-				<input type="text" name="websiteText" id="websiteText" value="" />
-				
-				<label for="customText">Custom String:</label>
-				<input type="password" name="customText" id="customText" value="" />
-				
-				<div data-role="fieldcontain">
-					<label for="digitSlider">digit:</label>
-					<input type="range" id="digitSlider" value="16" min="8" max="32" step="1" />
+	<div class="ui-container">
+		<div class="weui-cells__title">Website:</div>
+		<div class="weui-cells">
+            <div class="weui-cell">
+				<div class="weui-cell__bd">
+					<input type="text" class="weui-input" id="websiteText">
 				</div>
-				
-				<a href="#" data-role="button" id="genButton">generate password</a>		
-				
-				<p>Password:</p>
-				<p id="pwd" align="center">.</p>
+			</div>
 		</div>
-		
-		<div data-role="footer" class="footer-docs" data-theme="b"></div>
-		
+        <div class="weui-cells__title">Custom string:</div>
+		<div class="weui-cells">
+            <div class="weui-cell">
+				<div class="weui-cell__bd">
+					<input type="password" class="weui-input" id="customText">
+				</div>
+			</div>
+		</div>
+		<div class="weui-cells__title">Digit:</div>
+		<div class="weui-slider-box">
+            <div class="weui-slider">
+                <div id="sliderInner" class="weui-slider__inner">
+                    <div id="sliderTrack" style="width: 50%;" class="weui-slider__track"></div>
+                    <div id="sliderHandler" style="left: 50%;" class="weui-slider__handler"></div>
+                </div>
+            </div>
+            <div id="sliderValue" class="weui-slider-box__value">16</div>
+        </div>
+		<div class="weui-cells">
+			<a id="genButton" class="weui-btn weui-btn_primary">generate password</a>
+		</div>
+		<div class="weui-cells__title">Password:</div>
+        <div class="weui-cells">
+            <div class="weui-cell">
+				<div class="weui-cell__bd">
+					<!-- <input type="text" class="weui-input" id="pwd"> -->
+					<span id="pwd"></span>
+				</div>
+			</div>
+		</div>
 	</div>
 </body>
 </html>
